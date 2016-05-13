@@ -10,8 +10,11 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.1",
     "express": "^4.13.4",
+    "express-jwt": "^3.4.0",
+    "json-web-token": "^2.0.2",
     "mongoose": "^4.4.16",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0"

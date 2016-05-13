@@ -1,21 +1,24 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-module.exports.Event = mongoose.model(
+module.exports = mongoose.model(
   'Event', //model name
   new Schema({
     name: String,
-    host: {type: ObjectId, ref: 'User'},
+    host: {type: Schema.ObjectId, ref: 'User'},
     private: Boolean,
-    icon: Integer,
+    icon: Number,
     place: {
       name: String,
-      long: Double,
-      lat: Double
+      long: Number,
+      lat: Number
     },
-    joinedList: [{ type: ObjectId, ref: 'User'}],
-    pendingList: [{ type: ObjectId, ref: 'User'}],
-    declinedList: [{ type: ObjectId, ref: 'User'}],
+    joinedList: [{ type: Schema.ObjectId, ref: 'User'}],
+    pendingList: [{ type: Schema.ObjectId, ref: 'User'}],
+    declinedList: [{ type: Schema.ObjectId, ref: 'User'}],
     date: Date
+  },
+  {
+    collection: 'Event'
   })
 );
