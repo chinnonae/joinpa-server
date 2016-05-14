@@ -7,7 +7,7 @@ var app = express();
 var port = process.env.port || 8080;
 
 var mongooseConnection = require('./MongooseConnection').connect();
-var route = require('./route');
+var route = require('./auth-route');
 var User = require('./Models/User');
 
 app.use(bodyParser.json());
