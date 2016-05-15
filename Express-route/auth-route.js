@@ -1,7 +1,7 @@
 var JWT = require('json-web-token');
-var User = require('./Models/User');
+var User = require('../Models/User');
 var bcrypt = require('bcrypt-nodejs');
-var logger = require('./logger');
+var logger = require('../logger');
 
 module.exports.assignRoute = function(app) {
 
