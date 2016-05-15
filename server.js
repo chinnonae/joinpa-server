@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var expressJWT = require('express-jwt');
 var bcrypt = require('bcrypt-nodejs');
+var morgan = require('morgan');
 
 var app = express();
 var port = process.env.port || 8080;
@@ -9,12 +10,12 @@ var port = process.env.port || 8080;
 var mongooseConnection = require('./MongooseConnection').connect();
 var route = require('./auth-route');
 var User = require('./Models/User');
+var logger = require('./logger');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
-
 
 app.use(expressJWT({
     secret: 'this is joinpa'
@@ -26,8 +27,9 @@ app.use(expressJWT({
     ]
 }));
 
-route.assignRoute(app);
+app.use(morgan(':date :method :url', {stream: logger.stream}));
 
+route.assignRoute(app);
 
 app.listen(port, function(err) {
     if (err) {

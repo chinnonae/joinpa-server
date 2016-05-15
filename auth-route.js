@@ -1,6 +1,7 @@
 var JWT = require('json-web-token');
 var User = require('./Models/User');
 var bcrypt = require('bcrypt-nodejs');
+var logger = require('./logger');
 
 module.exports.assignRoute = function(app) {
 
@@ -46,7 +47,7 @@ module.exports.assignRoute = function(app) {
     app.post('/signup', function(req, res, next) {
         var c_user = req.body; //client user data
         User.findOne({ //query
-            username: c_user.username
+            $or: [{username: c_user.username}, {email: c_user.email} ]
         }, function(err, user) {
             if (err) { //on error
                 return res.status(500).json({
@@ -87,11 +88,25 @@ module.exports.assignRoute = function(app) {
                     );
                 });
 
-            } else { //the username from client match a username in database
+            } else { //the username/email from client match a username/email in database
+                errorField = '';
+                if(user.username === c_user.username){
+                  errorField += 'username';
+                }
+
+                if(user.email === c_user.email){
+                  if(!errorField) { //error field is not ''
+                    errorField += ', ';
+                  }
+                  errorField += 'email';
+                }
+
                 return res.status(400).json({
-                    message: 'the username is already exist'
+                   message: errorField + ' already exists'
                 });
             }
+
+
         });
 
     });
