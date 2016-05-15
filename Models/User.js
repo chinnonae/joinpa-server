@@ -7,8 +7,6 @@ module.exports = mongoose.model(
     username: String,
     password: String,
     email: String,
-    friends: [{ type: Schema.ObjectId, ref: 'User' }],
-    friendsRequest: [{ type: Schema.ObjectId, ref: 'User' }],
     avatar: Number
   },
   {

@@ -61,8 +61,6 @@ module.exports.assignRoute = function(app) {
                             username: c_user.username,
                             password: hash,
                             email: c_user.email,
-                            friends: [],
-                            friendsRequest: [],
                             avatar: c_user.avatar
                         },
                         function(err, newUser) { //callback
