@@ -5,7 +5,7 @@ module.exports.assignRoute = function(app) {
 
     app.post('/friend/search/', function(req, res, next) {
         searchAttr = req.body.search; //username to be searched
-
+        console.log(searchAttr);
         User.find({ //find user
                 username: new RegExp('\\b' + searchAttr, 'i') // regex = /\b{searchAttr}/i.
             })
@@ -14,9 +14,9 @@ module.exports.assignRoute = function(app) {
             .limit(15)
             .exec(function(err, results) {
                 if (err) { //database error occur
-                    //handle
+                    return sendDbError(res);
                 } else { //no error
-                    res.status(400).json(results);
+                    res.status(200).json(results);
                 }
             });
 
@@ -44,7 +44,7 @@ module.exports.assignRoute = function(app) {
 
             }, function(err, friendship) { //callback
                 if(err){ //database error occur
-                  //handle
+                    return sendDbError(res);
                 }
                 //if not then update friendship to both user
                 User.update({ //where
@@ -59,7 +59,7 @@ module.exports.assignRoute = function(app) {
                     }, //callback
                     function(err, raw) {
                         if(err) { //database error occur
-                          //handle
+                          return sendDbError(res);
                         }
                         //if not then response the client
                         res.status(200).json({
@@ -86,7 +86,7 @@ module.exports.assignRoute = function(app) {
             multi: false
         }, function(err, raw) { //callback
             if(err) { //database error occur
-
+                return sendDbError(res);
             }
             //if not then reponse the success
             console.log(raw);
@@ -97,6 +97,10 @@ module.exports.assignRoute = function(app) {
         );
     }); // end of PUT /friend/accept-request
 
-
-
 };
+
+function sendDbError(res){
+  res.status(500).json({
+    message: 'database error'
+  });
+}
