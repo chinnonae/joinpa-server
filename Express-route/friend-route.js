@@ -5,7 +5,7 @@ module.exports.assignRoute = function(app) {
 
     app.post('/friend/search/', function(req, res, next) {
         searchAttr = req.body.search; //username to be searched
-        console.log(searchAttr);
+
         User.find({ //find user
                 username: new RegExp('\\b' + searchAttr, 'i') // regex = /\b{searchAttr}/i.
             })
@@ -72,7 +72,7 @@ module.exports.assignRoute = function(app) {
     }); //end of POST /friend/request
 
 
-    app.put('/friend/accept-request', function(req, res, next) {
+    app.post('/friend/accept-request', function(req, res, next) {
         thisUserId = req.user.uid;
         otherUserId = req.body.otherUserId;
 
