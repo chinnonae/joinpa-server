@@ -126,7 +126,6 @@ module.exports.assignRoute = function(app) {
                 }).select('username email avatar friendship')
                     .populate({
                       path: 'friendship',
-                      match: { status: true },
                       select: 'relation status',
 
                       populate: {
@@ -135,7 +134,6 @@ module.exports.assignRoute = function(app) {
                       }
                     })
                     .exec(function(err, user) { //select fields and callback
-                      console.log(user);
                       if (err) { //on database error
                           return sendDbError(res, err);
                       }
@@ -153,14 +151,21 @@ module.exports.assignRoute = function(app) {
                             username: user.username,
                             email: user.email,
                             avatar: user.avatar,
-                            friends: []
+                            friends: [],
+                            friendRequests: []
                           };
 
                           user.friendship.forEach(function(friendship){ //loop friendship array
-                            if(friendship.relation[0]._id == decode.uid){
-                              resUser.friends.push(friendship.relation[1]); //push this user's friend to the array
+                            var list;
+                            if(friendship.status === true){ //if users are friend
+                              list = resUser.friends;
                             } else {
-                              resUser.friends.push(friendship.relation[0]);
+                              list = resUser.friendRequests;
+                            }
+                            if(friendship.relation[0]._id == decode.uid){
+                              list.push(friendship.relation[1]); //push this user's friend to the array
+                            } else {
+                              list.push(friendship.relation[0]);
                             }
                           });
                           return res.status(200).json(resUser);
