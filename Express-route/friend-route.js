@@ -10,15 +10,38 @@ module.exports.assignRoute = function(app) {
                 username: new RegExp('\\b' + searchAttr, 'i'), // regex = /\b{searchAttr}/i.
                 _id: { $ne: req.user.uid }
             })
-            .select('_id username avatar friendship')
-            .sort('username')
+            .select('_id username avatar friendship') // select field
+            .populate({ //populate freindship
+              path: 'friendship',
+              match: { status: true },
+              select: 'relation status'
+            })
+            .sort('username') //sort by username
             .limit(15)
             .exec(function(err, results) {
                 if (err) { //database error occur
                     return sendDbError(res, err);
-                } else { //no error
-                    res.status(200).json(results);
                 }
+                searchResults = []; //new search result array
+                results.forEach(function(user) { //assign result
+                  newUser = {
+                    _id: user._id,
+                    isFriend: false,
+                    username: user.username,
+                    email: user.email,
+                    friendList: []
+                  };
+                  user.friendship.forEach(function(friendship) { //assign friend to each user
+                    newUser.friendList.push({
+                      _id: friendship.relation[0].id === user._id.id ? friendship.relation[1] : friendship.relation[0] //if relation[0] = searched user then _id = relation[1], otherwise _id = relation[0]
+                    }); //push relation[1] if [0] == thisUser, otherwise push relation[0]
+                    newUser.isFriend = (friendship.relation[0].toString() === req.user.uid || friendship.relation[1].toString() === req.user.uid) || newUser.isFriend ? true : false;
+                    //search user's isFriend is true when relation[0] or relation[1] = id of user who sent request or isFriend is already true, otherwise false
+                  });
+                  searchResults.push(newUser); // push new user object to search results
+                });
+                res.status(200).json(searchResults);
+
             });
 
     }); //end of POST /friend/search
