@@ -11,9 +11,7 @@ module.exports.assignRoute = function(app) {
             username: cuser.username
         }, function(err, user) {
             if (err) { //on error
-                return res.status(500).json({
-                    message: 'database error'
-                });
+                sendDbError(res, err);
             }
 
             if (!user) { //wrong username
@@ -32,9 +30,10 @@ module.exports.assignRoute = function(app) {
                         var token = {
                           key: result
                         };
-                        res.status(200).json(token);
+                        return res.status(200).json(token);
                     } else { //on error
-                        res.status(500).json({
+                        logger.error('GenToken:\n' + err);
+                        return res.status(500).json({
                             message: 'server cannot generate a token'
                         });
                     }
@@ -50,9 +49,7 @@ module.exports.assignRoute = function(app) {
             $or: [{username: c_user.username}, {email: c_user.email} ]
         }, function(err, user) {
             if (err) { //on error
-                return res.status(500).json({
-                    message: 'database error'
-                });
+                sendDbError(res, err);
             }
 
             if (!user) { //if no username is match
@@ -65,12 +62,11 @@ module.exports.assignRoute = function(app) {
                         },
                         function(err, newUser) { //callback
                             if (err) { //error while adding a new user to database
-                                return res.status(500).json({
-                                    message: 'database error'
-                                });
+                                sendDbError(res, err);
                             } else { //adding new user to database is success
                                 genToken(newUser._id, function(err, result) {
                                     if (err) { //error while generating token
+                                        logger.error('GenToken:\n' + err);
                                         return res.status(500).json({
                                             message: 'server cannot generate a token'
                                         });
@@ -118,6 +114,7 @@ module.exports.assignRoute = function(app) {
         } else {
             JWT.decode('this is joinpa', token, function(err, decode) {
                 if (err) { //error on decoding the token
+                    logger.error('Token decode\n: ' + err);
                     res.status(500).json({
                         message: 'invilid token or server cannot manipulate the token'
                     });
@@ -127,9 +124,7 @@ module.exports.assignRoute = function(app) {
                     _id: decode.uid
                 }).select('username email friends friendsRequest avatar').exec(function(err, user) { //select fields and callback
                     if (err) { //on database error
-                        return res.status(500).json({
-                            message: 'database error'
-                        });
+                        sendDbError(res, err);
                     }
 
                     if (user) { //found a match user id
@@ -155,5 +150,12 @@ function genToken(id, callback) {
         uid: id
     }, function(err, token) {
         callback(err, token);
+    });
+}
+
+function sendDbError(res, err){
+    logger.err(err);
+    res.status(500).json({
+      message: 'database error'
     });
 }
