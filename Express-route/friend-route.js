@@ -152,6 +152,25 @@ module.exports.assignRoute = function(app) {
           res.status(200).json(requests);
         });
     }); //end of GET /friend/friends
+
+
+    app.delete('/friend/unfriend', function(req, res, next) {
+      thisUserId = req.user.uid;
+      otherUserId = req.body.otherUserId;
+      Friendship.remove({
+        relation: {
+          $in: [thisUserId, otherUserId]
+        }
+      }, function(err){
+        if(!err){ //if not error
+          return res.status(200).json({
+            message: 'unfriend success'
+          });
+        } else {
+          sendDbError(res, err);
+        }
+      });
+    });
 };
 
 function sendDbError(res, err){
