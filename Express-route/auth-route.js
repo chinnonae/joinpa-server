@@ -105,8 +105,9 @@ module.exports.assignRoute = function(app) {
 
     });
 
-    app.get('/verify/:token', function(req, res, next) {
+    app.post('/verify/:token', function(req, res, next) {
         var token = req.params.token;
+        var deviceKey = req.body.deviceKey;
         if (!token) { //no token
             return res.status(400).json({
                 message: 'invalid token'
@@ -136,8 +137,15 @@ module.exports.assignRoute = function(app) {
                     .exec(function(err, user) { //select fields and callback
                       console.log(user);
                       if (err) { //on database error
-                          sendDbError(res, err);
-                        }
+                          return sendDbError(res, err);
+                      }
+
+                      user.deviceKey = deviceKey;
+                      user.save(function(err){
+                          if(err){
+                            logger.error('Cannot save deviceKey of ' + user.username + ' :\n' + err);
+                          }
+                      });
 
                       if (user) { //found a match user id
                           var resUser = { //create new User object for response
