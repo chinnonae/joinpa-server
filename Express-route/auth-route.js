@@ -122,18 +122,45 @@ module.exports.assignRoute = function(app) {
 
                 var query = User.findOne({ //find user id on database
                     _id: decode.uid
-                }).select('username email friends friendsRequest avatar').exec(function(err, user) { //select fields and callback
-                    if (err) { //on database error
-                        sendDbError(res, err);
-                    }
+                }).select('username email avatar friendship')
+                    .populate({
+                      path: 'friendship',
+                      match: { status: true },
+                      select: 'relation status',
 
-                    if (user) { //found a match user id
-                        return res.status(200).json(user);
-                    } else { //cannot find a match user id
-                        return res.status(400).json({
-                            message: 'invalid token'
-                        });
-                    }
+                      populate: {
+                        path: 'relation',
+                        select: 'username email avatar'
+                      }
+                    })
+                    .exec(function(err, user) { //select fields and callback
+                      console.log(user);
+                      if (err) { //on database error
+                          sendDbError(res, err);
+                        }
+
+                      if (user) { //found a match user id
+                          var resUser = { //create new User object for response
+                            _id: user._id,
+                            username: user.username,
+                            email: user.email,
+                            avatar: user.avatar,
+                            friends: []
+                          };
+
+                          user.friendship.forEach(function(friendship){ //loop friendship array
+                            if(friendship.relation[0]._id == decode.uid){
+                              resUser.friends.push(friendship.relation[1]); //push this user's friend to the array
+                            } else {
+                              resUser.friends.push(friendship.relation[0]);
+                            }
+                          });
+                          return res.status(200).json(resUser);
+                      } else { //cannot find a match user id
+                          return res.status(400).json({
+                              message: 'invalid token'
+                          });
+                      }
 
                 });
             });
