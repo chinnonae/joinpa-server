@@ -171,17 +171,17 @@ module.exports.assignRoute = function(app) {
           }
           var friends = [];
           results.forEach(function(relationship) { //for each relation ship
-              if(relationship.status === true){ //if status is false (pending request);
+              if(relationship.status === true){ //if status is true (they are friends);
                 if(relationship.relation[0]._id == user){ //if relation[0] == this user
-                  requests.push(relationship.relation[1]); //then push another into the array
+                  friends.push(relationship.relation[1]); //then push another into the array
                 } else { //otherwise
-                  requests.push(relationship.relation[0]);//push relation[0] into the array
+                  friends.push(relationship.relation[0]);//push relation[0] into the array
                 }
               }
           });
 
           res.status(200).json({
-            friends: requests
+            friends: friends
           });
         });
     }); //end of GET /friend/friends
