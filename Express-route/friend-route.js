@@ -40,7 +40,9 @@ module.exports.assignRoute = function(app) {
                   });
                   searchResults.push(newUser); // push new user object to search results
                 });
-                res.status(200).json(searchResults);
+                res.status(200).json({
+                  result: searchResults
+                });
 
             });
 
