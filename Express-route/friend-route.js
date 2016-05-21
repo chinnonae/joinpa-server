@@ -29,7 +29,7 @@ module.exports.assignRoute = function(app) {
                     isFriend: false,
                     username: user.username,
                     email: user.email,
-                    friendList: []
+                    friends: []
                   };
                   user.friendship.forEach(function(friendship) { //assign friend to each user
                     newUser.friendList.push({
