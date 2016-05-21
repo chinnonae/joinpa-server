@@ -115,7 +115,7 @@ module.exports.assignRoute = function(app) {
         thisUserId = req.user.uid;
         otherUserId = req.body.otherUserId;
         if(!otherUserId) {
-          res.status(400).json({
+          return res.status(400).json({
             message: 'otherUserId is missing'
           });
         }
