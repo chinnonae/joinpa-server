@@ -32,7 +32,7 @@ module.exports.assignRoute = function(app) {
                     friends: []
                   };
                   user.friendship.forEach(function(friendship) { //assign friend to each user
-                    newUser.friendList.push({
+                    newUser.friends.push({
                       _id: friendship.relation[0].id === user._id.id ? friendship.relation[1] : friendship.relation[0] //if relation[0] = searched user then _id = relation[1], otherwise _id = relation[0]
                     }); //push relation[1] if [0] == thisUser, otherwise push relation[0]
                     newUser.isFriend = (friendship.relation[0].toString() === req.user.uid || friendship.relation[1].toString() === req.user.uid) || newUser.isFriend ? true : false;
