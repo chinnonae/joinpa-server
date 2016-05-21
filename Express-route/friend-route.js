@@ -54,10 +54,13 @@ module.exports.assignRoute = function(app) {
         otherUserId = req.body.otherUserId;
 
         Friendship.find({ //find whether relationship is exists or not
-            relation: {
-                $in: [thisUserId, otherUserId]
-            }
+            $and: [
+              { relation: { $in: [thisUserId] } },
+              { relation: { $in: [otherUserId] } }
+            ]
         }, function(err, results) {
+          console.log(err);
+          console.log(results);
             if (results.length > 0) { //if exists then response an error to client
                 return res.status(400).json({
                     message: 'request is already exists'
@@ -103,9 +106,10 @@ module.exports.assignRoute = function(app) {
         otherUserId = req.body.otherUserId;
 
         Friendship.update({ //where
-            relation: {
-                $in: [thisUserId, otherUserId]
-            }
+            $and: [
+              { relation: { $in: [thisUserId] } },
+              { relation: { $in: [otherUserId] } }
+            ]
         }, { //update fields and values
             $set: { status: true}
         }, { //options
@@ -187,9 +191,10 @@ module.exports.assignRoute = function(app) {
       thisUserId = req.user.uid;
       otherUserId = req.body.otherUserId;
       Friendship.remove({
-        relation: {
-          $in: [thisUserId, otherUserId]
-        }
+        $and: [
+          { relation: { $in: [thisUserId] } },
+          { relation: { $in: [otherUserId] } }
+        ]
       }, function(err){
         if(!err){ //if not error
           return res.status(200).json({
