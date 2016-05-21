@@ -7,6 +7,11 @@ module.exports.assignRoute = function(app) {
 
     app.post('/signin', function(req, res, next) {
         var cuser = req.body;
+        if( !cuser.username || !cuser.password ) { //if any field is missing
+          return res.status(400).json({
+            message: 'please fill the username and password field'
+          });
+        }
         User.findOne({
             username: cuser.username
         }, function(err, user) {
@@ -44,21 +49,26 @@ module.exports.assignRoute = function(app) {
     });
 
     app.post('/signup', function(req, res, next) {
-        var c_user = req.body; //client user data
+        var cuser = req.body; //client user data
+        if( !cuser.username || !cuser.password || !cuser.email || (typeof cuser.avatar !== Number )){ //if any field is null
+          return res.status(400).json({
+            message: 'please fill required fields'
+          });
+        }
         User.findOne({ //query
-            $or: [{username: c_user.username}, {email: c_user.email} ]
+            $or: [{username: cuser.username}, {email: cuser.email} ]
         }, function(err, user) {
             if (err) { //on error
                 sendDbError(res, err);
             }
 
             if (!user) { //if no username is match
-                bcrypt.hash(c_user.password, null, null, function(err, hash) { //hash the password
+                bcrypt.hash(cuser.password, null, null, function(err, hash) { //hash the password
                     User.create({ //create new user
-                            username: c_user.username,
+                            username: cuser.username,
                             password: hash,
-                            email: c_user.email,
-                            avatar: c_user.avatar
+                            email: cuser.email,
+                            avatar: cuser.avatar
                         },
                         function(err, newUser) { //callback
                             if (err) { //error while adding a new user to database
@@ -84,11 +94,11 @@ module.exports.assignRoute = function(app) {
 
             } else { //the username/email from client match a username/email in database
                 errorField = '';
-                if(user.username === c_user.username){
+                if(user.username === cuser.username){
                   errorField += 'username';
                 }
 
-                if(user.email === c_user.email){
+                if(user.email === cuser.email){
                   if(!errorField) { //error field is not ''
                     errorField += ', ';
                   }
@@ -108,9 +118,9 @@ module.exports.assignRoute = function(app) {
     app.post('/verify/:token', function(req, res, next) {
         var token = req.params.token;
         var deviceKey = req.body.deviceKey;
-        if (!token) { //no token
+        if (!token || !deviceKey) { //no token
             return res.status(400).json({
-                message: 'invalid token'
+                message: 'token or device key is missing'
             });
         } else {
             JWT.decode('this is joinpa', token, function(err, decode) {
