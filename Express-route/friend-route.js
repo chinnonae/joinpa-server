@@ -146,7 +146,9 @@ module.exports.assignRoute = function(app) {
                 }
             });
 
-            res.status(200).json(requests);
+            res.status(200).json({
+              friendRequests: requests
+            });
           });
     }); //end of GET /friend/request
 
@@ -163,7 +165,7 @@ module.exports.assignRoute = function(app) {
             //handle
             return;
           }
-          var requests = [];
+          var friends = [];
           results.forEach(function(relationship) { //for each relation ship
               if(relationship.status === true){ //if status is false (pending request);
                 if(relationship.relation[0]._id == user){ //if relation[0] == this user
@@ -174,7 +176,9 @@ module.exports.assignRoute = function(app) {
               }
           });
 
-          res.status(200).json(requests);
+          res.status(200).json({
+            friends: requests
+          });
         });
     }); //end of GET /friend/friends
 
