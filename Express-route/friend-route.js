@@ -22,8 +22,11 @@ module.exports.assignRoute = function(app) {
                 if (err) { //database error occur
                     return sendDbError(res, err);
                 }
+
+                logger.debug('creating search results array');
                 searchResults = []; //new search result array
                 results.forEach(function(user) { //assign result
+                  logger.debug('creating an user ' + user.username);
                   newUser = {
                     _id: user._id,
                     isFriend: false,
@@ -32,12 +35,14 @@ module.exports.assignRoute = function(app) {
                     friends: []
                   };
                   user.friendship.forEach(function(friendship) { //assign friend to each user
+                    logger.debug('adding friends\' id to the user (' + user.username + ')');
                     newUser.friends.push({
                       _id: friendship.relation[0].id === user._id.id ? friendship.relation[1] : friendship.relation[0] //if relation[0] = searched user then _id = relation[1], otherwise _id = relation[0]
                     }); //push relation[1] if [0] == thisUser, otherwise push relation[0]
                     newUser.isFriend = (friendship.relation[0].toString() === req.user.uid || friendship.relation[1].toString() === req.user.uid) || newUser.isFriend ? true : false;
                     //search user's isFriend is true when relation[0] or relation[1] = id of user who sent request or isFriend is already true, otherwise false
                   });
+                  logger.debug('pushing an user into results array');
                   searchResults.push(newUser); // push new user object to search results
                 });
                 res.status(200).json({
@@ -52,6 +57,11 @@ module.exports.assignRoute = function(app) {
     app.post('/friend/request', function(req, res, next) {
         thisUserId = req.user.uid;
         otherUserId = req.body.otherUserId;
+        if(!otherUserId){
+          return res.status(400).json({
+            message: 'otherUserId is missing'
+          });
+        }
 
         Friendship.find({ //find whether relationship is exists or not
             $and: [
@@ -104,6 +114,11 @@ module.exports.assignRoute = function(app) {
     app.post('/friend/accept-request', function(req, res, next) {
         thisUserId = req.user.uid;
         otherUserId = req.body.otherUserId;
+        if(!otherUserId) {
+          res.status(400).json({
+            message: 'otherUserId is missing'
+          });
+        }
 
         Friendship.update({ //where
             $and: [
@@ -190,6 +205,12 @@ module.exports.assignRoute = function(app) {
     app.delete('/friend/unfriend', function(req, res, next) {
       thisUserId = req.user.uid;
       otherUserId = req.body.otherUserId;
+      if(!otherUserId) {
+        res.status(400).json({
+          message: 'otherUserId is missing'
+        });
+      }
+
       Friendship.remove({
         $and: [
           { relation: { $in: [thisUserId] } },

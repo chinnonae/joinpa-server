@@ -99,7 +99,7 @@ module.exports.assignRoute = function(app) {
                 }
 
                 if(user.email === cuser.email){
-                  if(!errorField) { //error field is not ''
+                  if(errorField) { //error field is not ''
                     errorField += ', ';
                   }
                   errorField += 'email';
