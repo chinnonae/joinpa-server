@@ -202,7 +202,7 @@ module.exports.assignRoute = function(app) {
     }); //end of GET /friend/friends
 
 
-    app.delete('/friend/unfriend', function(req, res, next) {
+    app.post('/friend/unfriend', function(req, res, next) {
       thisUserId = req.user.uid;
       otherUserId = req.body.otherUserId;
       if(!otherUserId) {
