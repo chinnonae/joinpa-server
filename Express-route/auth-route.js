@@ -50,7 +50,7 @@ module.exports.assignRoute = function(app) {
 
     app.post('/signup', function(req, res, next) {
         var cuser = req.body; //client user data
-        if( !cuser.username || !cuser.password || !cuser.email || (typeof cuser.avatar !== Number )){ //if any field is null
+        if( !cuser.username || !cuser.password || !cuser.email ){ //if any field is null
           return res.status(400).json({
             message: 'please fill required fields'
           });
