@@ -159,8 +159,8 @@ module.exports.assignRoute = function(app) {
             var requests = [];
             results.forEach(function(relationship) { //for each relation ship
                 if(relationship.status === false){ //if status is false (pending request);
-                  if(relationship.relation[0]._id === user){ //if relation[0] == this user
-                    requests.push(relationship.relation[1]); //then push another into the array
+                  if(relationship.relation[1]._id === user){ //if relation[1] == this user (meaning that this user has been requested for friendship by [0])
+                    requests.push(relationship.relation[0]); //then push another into the array
                   }
                 }
             });
