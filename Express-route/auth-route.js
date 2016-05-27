@@ -166,17 +166,19 @@ module.exports.assignRoute = function(app) {
                           };
 
                           user.friendship.forEach(function(friendship){ //loop friendship array
-                            var list;
-                            if(friendship.status === true){ //if users are friend
-                              list = resUser.friends;
-                            } else {
-                              list = resUser.friendRequests;
+                            if(friendship.status === true) {
+                              if(friendship.relation[0]._id == decode.uid) {
+                                resUser.friends.push(friendship.relation[1]);
+                              } else {
+                                resUser.friends.push(friendship.relation[0]);
+                              }
                             }
-                            if(friendship.relation[0]._id == decode.uid){
-                              list.push(friendship.relation[1]); //push this user's friend to the array
-                            } else {
-                              list.push(friendship.relation[0]);
+                            if(friendship.status === false) {
+                              if(friendship.relation[1]._id == decode.uid) {
+                                resUser.friendRequests.push(friendship.relation[0]);
+                              }
                             }
+
                           });
                           return res.status(200).json(resUser);
                       } else { //cannot find a match user id
