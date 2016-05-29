@@ -1,55 +1,33 @@
 var User = require('../Models/User');
 var Friendship = require('../Models/Friendship');
 var logger = require('../logger');
+var UserUtil = require('../Utils/UserUtil');
 
 module.exports.assignRoute = function(app) {
 
     app.post('/friend/search/', function(req, res, next) {
         searchAttr = req.body.search; //username to be searched
-        User.find({ //find user
-                username: new RegExp('\\b' + searchAttr, 'i'), // regex = /\b{searchAttr}/i.
-                _id: { $ne: req.user.uid }
-            })
-            .select('_id username avatar friendship') // select field
-            .populate({ //populate freindship
-              path: 'friendship',
-              match: { status: true },
-              select: 'relation status'
-            })
-            .sort('username') //sort by username
-            .limit(15)
-            .exec(function(err, results) {
-                if (err) { //database error occur
-                    return sendDbError(res, err);
-                }
 
-                logger.debug('creating search results array');
-                searchResults = []; //new search result array
-                results.forEach(function(user) { //assign result
-                  logger.debug('creating an user ' + user.username);
-                  newUser = {
-                    _id: user._id,
-                    isFriend: false,
-                    username: user.username,
-                    email: user.email,
-                    friends: []
-                  };
-                  user.friendship.forEach(function(friendship) { //assign friend to each user
-                    logger.debug('adding friends\' id to the user (' + user.username + ')');
-                    newUser.friends.push({
-                      _id: friendship.relation[0].id == user._id.id ? friendship.relation[1] : friendship.relation[0] //if relation[0] = searched user then _id = relation[1], otherwise _id = relation[0]
-                    }); //push relation[1] if [0] == thisUser, otherwise push relation[0]
-                    newUser.isFriend = (friendship.relation[0].toString() == req.user.uid || friendship.relation[1].toString() == req.user.uid) || newUser.isFriend ? true : false;
-                    //search user's isFriend is true when relation[0] or relation[1] = id of user who sent request or isFriend is already true, otherwise false
-                  });
-                  logger.debug('pushing an user into results array');
-                  searchResults.push(newUser); // push new user object to search results
-                });
-                res.status(200).json({
-                  result: searchResults
-                });
+        UserUtil.find({ //find user
+            username: new RegExp('\\b' + searchAttr, 'i'), // regex = /\b{searchAttr}/i.
+            _id: { $ne: req.user.uid }
+          }, 15, function(err, results) {
+            console.log(results);
+            if(err){
 
+            }
+
+            var beautified = [];
+            results.forEach(function(results) {
+              beautified.push(UserUtil.beautify(results));
             });
+
+            console.log(beautified);
+
+            res.status(200).json({
+              results: beautified
+            });
+        });
 
     }); //end of POST /friend/search
 
