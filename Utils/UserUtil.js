@@ -12,19 +12,33 @@ module.exports = {
       friendRequests: []
     };
     user.friendship.forEach(function(friendship) {
+      var toclone;
+      var cloned = {};
       if(friendship.status === true) {
         if(friendship.relation[0]._id.toString() == user._id.toString()) {
-          newUser.friends.push(friendship.relation[1]);
+          toclone = friendship.relation[1];
         } else {
-          newUser.friends.push(friendship.relation[0]);
+          toclone = friendship.relation[0];
         }
+        ['_id', 'username', 'email', 'avatar'].forEach(function(attrib){
+          cloned[attrib] = toclone[attrib];
+        });
+
+        cloned.isFriend = true;
+        newUser.friends.push(cloned);
+
       } else {
         if(friendship.relation[1]._id.toString() == user._id.toString()) {
-          newUser.friendRequests.push(friendship.relation[0]);
+          toclone = friendship.relation[0];
+          ['_id', 'username', 'email', 'avatar'].forEach(function(attrib){
+            cloned[attrib] = toclone[attrib];
+          });
+          cloned.isFriend = false;
+          newUser.friendRequests.push(cloned);
+
         }
       }
     });
-
     return newUser;
 
   },
