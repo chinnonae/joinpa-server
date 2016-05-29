@@ -25,7 +25,7 @@ module.exports.assignRoute = function(app) {
             console.log(beautified);
 
             res.status(200).json({
-              results: beautified
+              result: beautified
             });
         });
 
