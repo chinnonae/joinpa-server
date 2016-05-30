@@ -241,7 +241,7 @@ function removeUserIdFromList(list, id){
 
 function findEvent(query, thisUserId, callback){
   Event.find(query)
-    .select('_id name host icon date declinedList pendingList joinedList place')
+    .select('_id name host icon date declinedList pendingList joinedList place timestamp')
     .populate({
       path: 'pendingList',
       select: '_id username email avatar'
