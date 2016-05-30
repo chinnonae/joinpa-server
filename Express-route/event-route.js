@@ -57,7 +57,7 @@ module.exports.assignRoute = function(app){
        { host: thisUserId }
       ],
       date: { $gt: new Date()}
-    }, function(err, results) {
+    }, thisUserId, function(err, results) {
         if(err){
 
         }
@@ -78,7 +78,7 @@ module.exports.assignRoute = function(app){
       event.pendingList.push(invitation.friendId); // add friend to pendingList
       event.save(function(err) {
         if(err){
-          //handle
+          sendDbError(res, err);
         }
         //send notification
         res.status(200).json({
@@ -120,6 +120,9 @@ module.exports.assignRoute = function(app){
     Event.findOne({
       _id: info.eventId
     }, function(err, event) {
+      if(err) {
+        sendDbError();
+      }
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
 
       } else if(removeUserIdFrom(event.joinedList, req.user.uid).length > 0) {
@@ -189,7 +192,7 @@ module.exports.assignRoute = function(app){
         { joinedList: thisUserId },
         { host: thisUserId }
       ]
-    }, function(err, results) {
+    }, thisUserId, function(err, results) {
       if(err){
 
       }
@@ -202,25 +205,22 @@ module.exports.assignRoute = function(app){
 
   app.get('/event/publicEvent', function(req, res, next) {
     var thisUserId = req.user.uid;
-    console.log(thisUserId);
     UserUtil.findOne({ _id: thisUserId }, function(err, user) {
-      console.log(user);
       var beautified = UserUtil.beautify(user);
-      console.log(beautified);
       var friends = [];
       beautified.friends.forEach(function(friend){
-        console.log(friend);
         friends.push(friend._id);
       });
       console.log(friends);
       if(friends.length <= 0) res.status(200).json({
         result: []
       });
-      findEvent({ host: { $in: friends }}, function(err, results) {
+      console.log('----------');
+      findEvent({ host: { $in: friends }}, thisUserId, function(err, results) {
         console.log(err);
         console.log(results);
         if(err){
-          SendDbError();
+          sendDbError(res, err);
         }
         res.status(200).json({
           result: results
@@ -264,7 +264,7 @@ function findEvent(query, thisUserId, callback){
     });
 }
 
-function SendDbError(res, err){
+function sendDbError(res, err){
   logger.error(err);
   res.status(500).json({
     message: 'database error'
