@@ -19,13 +19,18 @@ module.exports.assignRoute = function(app){
       date: cevent.date,
       timeStamp: cevent.timeStamp
       }, function(err, event){
+        if(err){
+          sendDbError();
+          return;
+        }
         JSON.parse(cevent.inviteList).forEach(function(friend) {
           event.pendingList.push(friend._id);
         });
         event.save(function(err) {
           //handle error
           if(err){
-
+            sendDbError();
+            return;
           }
           //send notification
           res.status(200).json({
@@ -39,27 +44,16 @@ module.exports.assignRoute = function(app){
   }); //end of POST /event/create
 
 
-  app.get('/event/unfinishedEvent', function(req, res, next) {
+  app.get('/event/invitedEvent', function(req, res, next) {
     var thisUserId = req.user.uid;
 
     findEvent({
-      $or: [
-        { pendingList: thisUserId },
-        { joinedList: thisUserId },
-        {
-          $or: [
-            {
-              declinedList: thisUserId,
-              isPrivate: false
-            }
-         ]
-       },
-       { host: thisUserId }
-      ],
+      pendingList: thisUserId,
       date: { $gt: new Date()}
     }, thisUserId, function(err, results) {
         if(err){
-
+          sendDbError();
+          return;
         }
         res.status(200).json({
           result: results
@@ -79,6 +73,7 @@ module.exports.assignRoute = function(app){
       event.save(function(err) {
         if(err){
           sendDbError(res, err);
+          return;
         }
         //send notification
         res.status(200).json({
@@ -122,6 +117,7 @@ module.exports.assignRoute = function(app){
     }, function(err, event) {
       if(err) {
         sendDbError();
+        return;
       }
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
 
@@ -153,7 +149,7 @@ module.exports.assignRoute = function(app){
       }
       event.save(function(err) {
         if(err) {
-          //handle error
+          sendDbError();
           return;
         }
         res.status(200).json({
@@ -171,7 +167,7 @@ module.exports.assignRoute = function(app){
       _id: info.eventId
     },function(err, event){
       if(err){
-        //handle error
+        sendDbError();
         return;
       }
       var toNotify = event.joinedList.concat(event.pendingList, event.declinedList);
@@ -182,7 +178,7 @@ module.exports.assignRoute = function(app){
         message: 'The event ' + event.name + ' has been cancel.'
       });
     });
-  }); //end of DELETE /event/delete
+  }); //end of POST /event/remove
 
 
   app.get('/event/joinedEvent', function(req, res, next) {
@@ -191,10 +187,12 @@ module.exports.assignRoute = function(app){
       $or: [
         { joinedList: thisUserId },
         { host: thisUserId }
-      ]
+      ],
+      date: { $gt: new Date() }
     }, thisUserId, function(err, results) {
       if(err){
-
+        sendDbError();
+        return;
       }
       res.status(200).json({
         result: results
@@ -215,12 +213,13 @@ module.exports.assignRoute = function(app){
       if(friends.length <= 0) res.status(200).json({
         result: []
       });
-      console.log('----------');
-      findEvent({ host: { $in: friends }}, thisUserId, function(err, results) {
-        console.log(err);
-        console.log(results);
+      findEvent({
+          host: { $in: friends },
+          date: { $gt: new Date() }
+        }, thisUserId, function(err, results) {
         if(err){
           sendDbError(res, err);
+          return;
         }
         res.status(200).json({
           result: results
