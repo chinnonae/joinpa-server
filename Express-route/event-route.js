@@ -202,17 +202,25 @@ module.exports.assignRoute = function(app){
 
   app.get('/event/publicEvent', function(req, res, next) {
     var thisUserId = req.user.uid;
-
+    console.log(thisUserId);
     UserUtil.findOne({ _id: thisUserId }, function(err, user) {
+      console.log(user);
       var beautified = UserUtil.beautify(user);
+      console.log(beautified);
       var friends = [];
-      user.friends.foreach(function(friend){
+      beautified.friends.forEach(function(friend){
+        console.log(friend);
         friends.push(friend._id);
       });
-
+      console.log(friends);
+      if(friends.length <= 0) res.status(200).json({
+        result: []
+      });
       findEvent({ host: { $in: friends }}, function(err, results) {
+        console.log(err);
+        console.log(results);
         if(err){
-
+          SendDbError();
         }
         res.status(200).json({
           result: results
@@ -254,4 +262,11 @@ function findEvent(query, thisUserId, callback){
     .exec(function(err, results) {
       callback(err, results);
     });
+}
+
+function SendDbError(res, err){
+  logger.error(err);
+  res.status(500).json({
+    message: 'database error'
+  });
 }
