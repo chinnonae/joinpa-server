@@ -11,6 +11,7 @@ var mongooseConnection = require('./MongooseConnection').connect();
 
 var authRoute = require('./Express-route/auth-route');
 var friendRoute = require('./Express-route/friend-route');
+var eventRoute = require('./Express-route/event-route');
 
 var User = require('./Models/User');
 var logger = require('./logger');
@@ -34,6 +35,7 @@ app.use(morgan(':date :method :url', {stream: logger.stream}));
 
 authRoute.assignRoute(app);
 friendRoute.assignRoute(app);
+eventRoute.assignRoute(app);
 
 app.listen(port, function(err) {
     if (err) {

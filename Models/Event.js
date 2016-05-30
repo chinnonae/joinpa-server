@@ -10,7 +10,7 @@ module.exports = mongoose.model(
     icon: Number,
     place: {
       name: String,
-      long: Number,
+      lon: Number,
       lat: Number
     },
     joinedList: [{ type: Schema.ObjectId, ref: 'User'}],
