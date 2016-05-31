@@ -50,7 +50,7 @@ module.exports.assignRoute = function(app){
     findEvent({
       pendingList: thisUserId,
       date: { $gt: new Date()}
-    }, thisUserId, function(err, results) {
+    }, function(err, results) {
         if(err){
           sendDbError();
           return;
@@ -106,7 +106,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           message: 'you have joined the event ' + event.name
         });
-      })
+      });
 
 
     });
@@ -115,25 +115,34 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/decline', function(req, res, next) {
     var info = req.body;
-
+    console.log('0');
     Event.findOne({
       _id: info.eventId
     }, function(err, event) {
+      console.log(err);
+      console.log(event);
       if(err) {
         sendDbError();
         return;
       }
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
-
-      } else if(removeUserIdFrom(event.joinedList, req.user.uid).length > 0) {
-
+        console.log('1');
+      } else if(removeUserIdFromList(event.joinedList, req.user.uid).length > 0) {
+        console.log('2');
       } else {
+        console.log('3');
         return;
       }
       event.declinedList.push(req.user.uid);
-      res.status(200).json({
-        message: 'you have declined the event ' + event.name
+      event.save(function(err) {
+        if(err){
+
+        }
+        res.status(200).json({
+          message: 'you have declined the event ' + event.name
+        });
       });
+
     }
 
     );
@@ -193,11 +202,12 @@ module.exports.assignRoute = function(app){
         { host: thisUserId }
       ],
       date: { $gt: new Date() }
-    }, thisUserId, function(err, results) {
+    }, function(err, results) {
       if(err){
         sendDbError();
         return;
       }
+      console.log(results);
       res.status(200).json({
         result: results
       });
@@ -220,7 +230,7 @@ module.exports.assignRoute = function(app){
       findEvent({
           host: { $in: friends },
           date: { $gt: new Date() }
-        }, thisUserId, function(err, results) {
+        }, function(err, results) {
         if(err){
           sendDbError(res, err);
           return;
@@ -249,7 +259,7 @@ function removeUserIdFromList(list, id){
   return [];
 }
 
-function findEvent(query, thisUserId, callback){
+function findEvent(query, callback){
   Event.find(query)
     .select('_id name host icon date declinedList pendingList joinedList place timestamp')
     .populate({
