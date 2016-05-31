@@ -12,7 +12,6 @@ module.exports.assignRoute = function(app) {
             username: new RegExp('\\b' + searchAttr, 'i'), // regex = /\b{searchAttr}/i.
             _id: { $ne: req.user.uid }
           }, 15, function(err, results) {
-            console.log(results);
             if(err){
 
             }
@@ -22,7 +21,6 @@ module.exports.assignRoute = function(app) {
               beautified.push(UserUtil.beautify(results));
             });
 
-            console.log(beautified);
 
             res.status(200).json({
               result: beautified
@@ -47,8 +45,6 @@ module.exports.assignRoute = function(app) {
               { relation: { $in: [otherUserId] } }
             ]
         }, function(err, results) {
-          console.log(err);
-          console.log(results);
             if (results.length > 0) { //if exists then response an error to client
                 return res.status(400).json({
                     message: 'request is already exists'

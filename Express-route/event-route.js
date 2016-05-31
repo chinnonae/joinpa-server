@@ -6,7 +6,6 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/create', function(req, res, next) {
     var cevent = req.body;
-    console.log(cevent);
     Event.create({
       name: cevent.name,
       host: req.user.uid,
@@ -102,7 +101,6 @@ module.exports.assignRoute = function(app){
       event.joinedList.push(req.user.uid);
       event.save(function(err) {
         if(err){
-          console.log(err);
           return;
         }
         res.status(200).json({
@@ -117,22 +115,19 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/decline', function(req, res, next) {
     var info = req.body;
-    console.log('0');
     Event.findOne({
       _id: info.eventId
     }, function(err, event) {
-      console.log(err);
-      console.log(event);
       if(err) {
         sendDbError();
         return;
       }
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
-        console.log('1');
+
       } else if(removeUserIdFromList(event.joinedList, req.user.uid).length > 0) {
-        console.log('2');
+
       } else {
-        console.log('3');
+
         return;
       }
       event.declinedList.push(req.user.uid);
@@ -154,12 +149,17 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/edit', function(req, res, next) {
     var info = req.body;
+
     Event.findOne({
       _id: info.eventId
     }, function(err, event) {
       for(var key in info) {
         if(key != 'eventId') {
-          event[key] = info[key];
+          if(key == 'place'){
+            event["place"] = JSON.parse(info["place"]);
+          }else {
+            event[key] = info[key];
+          }
         }
       }
       event.save(function(err) {
@@ -209,7 +209,6 @@ module.exports.assignRoute = function(app){
         sendDbError();
         return;
       }
-      console.log(results);
       res.status(200).json({
         result: results
       });
@@ -225,7 +224,6 @@ module.exports.assignRoute = function(app){
       beautified.friends.forEach(function(friend){
         friends.push(friend._id);
       });
-      console.log(friends);
       if(friends.length <= 0) res.status(200).json({
         result: []
       });
@@ -248,13 +246,8 @@ module.exports.assignRoute = function(app){
 
 function removeUserIdFromList(list, id){
   for(var i = 0; i < list.length; i++) { //if this user is in list
-    console.log(list[i]);
-    console.log(id);
     if(list[i] == id) {
-      console.log('-------');
       var removed = list.splice(i,1); // remove this user from list
-      console.log('a' + removed);
-      console.log('b' + list);
       return removed;
     }
   }
