@@ -89,20 +89,22 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/join', function(req, res, next) {
     var info = req.body;
-
     Event.findOne({
       _id: info.eventId
     }, function(err, event) {
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
 
-      } else if (!event.isPrivate && removeUserIdFromList(event.declinedList, req.user.uid).length > 0) {
-
+      } else if (!event.isPrivate) {
+        removeUserIdFromList(event.declinedList, req.user.uid);
       } else {
-
         return;
       }
       event.joinedList.push(req.user.uid);
       event.save(function(err) {
+        if(err){
+          console.log(err);
+          return;
+        }
         res.status(200).json({
           message: 'you have joined the event ' + event.name
         });
