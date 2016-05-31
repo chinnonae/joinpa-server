@@ -64,7 +64,7 @@ module.exports.assignRoute = function(app){
 
 
   app.post('/event/invite', function(req, res, next) {
-    var invitiation = req.body;
+    var invitation = req.body;
 
     Event.findOne({ // find the event
       _id: invitation.eventId
@@ -98,12 +98,16 @@ module.exports.assignRoute = function(app){
       } else if (!event.isPrivate && removeUserIdFromList(event.declinedList, req.user.uid).length > 0) {
 
       } else {
+
         return;
       }
       event.joinedList.push(req.user.uid);
-      res.status(200).json({
-        message: 'you have joined the event ' + event.name
-      });
+      event.save(function(err) {
+        res.status(200).json({
+          message: 'you have joined the event ' + event.name
+        });
+      })
+
 
     });
   }); //end of POST /event/join
@@ -231,9 +235,15 @@ module.exports.assignRoute = function(app){
 };
 
 function removeUserIdFromList(list, id){
-  for(var i = 0; i < event.pendingList.length; i++) { //if this user is in list
-    if(event.pendingList[i] === req.user.uid) {
-      return event.pendingList.splice(i,1); // remove this user from list
+  for(var i = 0; i < list.length; i++) { //if this user is in list
+    console.log(list[i]);
+    console.log(id);
+    if(list[i] == id) {
+      console.log('-------');
+      var removed = list.splice(i,1); // remove this user from list
+      console.log('a' + removed);
+      console.log('b' + list);
+      return removed;
     }
   }
   return [];
