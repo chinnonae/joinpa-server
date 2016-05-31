@@ -8,7 +8,9 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/create', function(req, res, next) {
     var cevent = req.body;
-
+    console.log(typeof cevent);
+    console.log(cevent);
+    console.log(JSON.stringify(cevent));
     /*
       create new document of Event
     */
@@ -71,7 +73,7 @@ module.exports.assignRoute = function(app){
             send back a response that an event is created.
           */
           res.status(200).json({ //
-            message: 'The ' + event.name + ' event has been created'
+              message: 'The ' + event.name + ' event has been created'
           });
         });
       }
@@ -116,18 +118,11 @@ module.exports.assignRoute = function(app){
       */
       event.pendingList.push(invitation.friendId);
       event.save(function(err) {
+
         if(err){
           sendDbError(res, err);
           return;
         }
-
-        /*
-          find this user friend's deviceKey to send notification.
-        */
-        User.findOne({
-          _id: friendId
-        }).select('deviceKey')
-          .exec(function(err, user){
 
             if(err){ // if error while looking for deviceKey in database.
               DbErrorCantNotify(err);
@@ -145,8 +140,7 @@ module.exports.assignRoute = function(app){
           message: 'The invitation has been sent'
         });
       });
-    });
-  }); //end of POST /event/create
+    });//end of POST /event/create
 
 
   app.post('/event/join', function(req, res, next) {
@@ -402,7 +396,7 @@ module.exports.assignRoute = function(app){
       findEvent({
           host: { $in: friends },
           date: { $gt: new Date() },
-          joinedList: { $not: thisUserId }
+          joinedList: { $nin: [thisUserId] }
         }, function(err, results) {
         if(err){
           sendDbError(res, err);
