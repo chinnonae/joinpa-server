@@ -8,9 +8,7 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/create', function(req, res, next) {
     var cevent = req.body;
-    console.log(typeof cevent);
-    console.log(cevent);
-    console.log(JSON.stringify(cevent));
+
     /*
       create new document of Event
     */
@@ -20,7 +18,7 @@ module.exports.assignRoute = function(app){
       isPrivate: cevent.isPrivate,
       icon: cevent.icon,
       joinedList: [],
-      pendingList: [],
+      pendingList: cevent.pendingList,
       declinedList: [],
       place: cevent.place,
       date: cevent.date,
@@ -31,13 +29,6 @@ module.exports.assignRoute = function(app){
           sendDbError();
           return;
         }
-
-        /*
-          parse array string to array then push each friend's id in pendingList
-        */
-        cevent.inviteList.forEach(function(friend) {
-          event.pendingList.push(friend._id);
-        });
 
         /*
           save new pendingList
