@@ -39,9 +39,9 @@ eventRoute.assignRoute(app);
 
 app.listen(port, function(err) {
     if (err) {
-        console.log("Server is unable to run.");
-        console.log(err);
+        logger.error("Server is unable to run.");
+        logger.error(err);
     } else {
-        console.log("Server is running on " + port);
+        logger.info("Server is running on " + port);
     }
 });

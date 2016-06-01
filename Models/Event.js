@@ -11,7 +11,8 @@ module.exports = mongoose.model(
     place: {
       name: String,
       lon: Number,
-      lat: Number
+      lat: Number,
+      isUseMap: Boolean
     },
     joinedList: [{ type: Schema.ObjectId, ref: 'User'}],
     pendingList: [{ type: Schema.ObjectId, ref: 'User'}],

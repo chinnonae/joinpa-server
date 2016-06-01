@@ -1,5 +1,3 @@
-/* jshint esversion: 6 */
-
 var winston = require('winston');
 winston.emitErrs = true;
 

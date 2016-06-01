@@ -4,6 +4,7 @@ var logger = require('../logger');
 var UserUtil = require('../Utils/UserUtil');
 var ANS = require('../Utils/AndroidNotificationSender');
 var User = require('../Models/User');
+var ReqUtil = require('../Utils/RequestUtil');
 
 module.exports.assignRoute = function(app){
 
@@ -27,7 +28,7 @@ module.exports.assignRoute = function(app){
       }, function(err, event){
 
         if(err){ //if error when create an Event on database
-          sendDbError();
+          ReqUtil.sendDbError(res, err);
           return;
         }
 
@@ -36,7 +37,7 @@ module.exports.assignRoute = function(app){
         */
         event.save(function(err) {
           if(err){ //if error while saving Event to database
-            sendDbError();
+            ReqUtil.sendDbError(res, err);
             return;
           }
 
@@ -66,7 +67,7 @@ module.exports.assignRoute = function(app){
             send back a response that an event is created.
           */
           res.status(200).json({ //
-              message: 'The ' + event.name + ' event has been created'
+            message: 'The ' + event.name + ' event has been created'
           });
           logger.info('/event/create reponsed');
         });
@@ -84,17 +85,18 @@ module.exports.assignRoute = function(app){
     findEvent({
       pendingList: thisUserId,
       date: { $gt: today()}
-    }, function(err, results) {
+    },
+      function(err, results) {
         if(err){
-          sendDbError();
+          ReqUtil.sendDbError(res, err);
           return;
         }
         res.status(200).json({
           result: results
         });
         logger.info('/event/invitedEvent reponsed');
-      });
-
+      }
+    );
   }); //end of GET /event/events
 
 
@@ -116,23 +118,17 @@ module.exports.assignRoute = function(app){
           message: 'Your friend has been invited or joined already.'
         });
       }
+
       event.pendingList.push(invitation.friendId);
       event.save(function(err) {
-
         if(err){
-          sendDbError(res, err);
+          ReqUtil.sendDbError(res, err);
           return;
         }
 
-            if(err){ // if error while looking for deviceKey in database.
-              DbErrorCantNotify(err);
-              return;
-            }
+        //notify this user friend.
+        ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
 
-            //notify this user friend.
-            ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
-
-          });
         /*
           send back a response that the invitation is sent.
         */
@@ -140,8 +136,10 @@ module.exports.assignRoute = function(app){
           message: 'The invitation has been sent'
         });
         logger.info('/event/invite reponsed');
+
       });
-    });//end of POST /event/create
+    });
+  });//end of POST /event/create
 
 
   app.post('/event/join', function(req, res, next) {
@@ -158,17 +156,13 @@ module.exports.assignRoute = function(app){
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
 
       }
-
       //else if this Event is public Event and user exists in declinedList
       else if (!event.isPrivate && removeUserIdFromList(event.declinedList, req.user.uid).length > 0) {
-
       }
-
       //else if this Event is public Event and user doesn't exists in joinedList
       else if (!event.isPriavte && event.joinedList.indexOf(req.user.uid) < 0) {
 
       }
-
       //else
       else {
         return;
@@ -191,8 +185,6 @@ module.exports.assignRoute = function(app){
         });
         logger.info('/event/join reponsed');
       });
-
-
     });
   }); //end of POST /event/join
 
@@ -208,20 +200,17 @@ module.exports.assignRoute = function(app){
     }, function(err, event) {
 
       if(err) { //if error occur while searching an event.
-        sendDbError();
+        ReqUtil.sendDbError(res, err);
         return;
       }
-
       // if user exists in pedningList
       if(removeUserIdFromList(event.pendingList, req.user.uid).length > 0) {
 
       }
-
       // else if user exists in joinedList
       else if(removeUserIdFromList(event.joinedList, req.user.uid).length > 0) {
 
       }
-
       // else
       else {
         return;
@@ -234,7 +223,7 @@ module.exports.assignRoute = function(app){
       event.save(function(err) {
 
         if(err){ // if error occur while saving.
-          sendDbError();
+          ReqUtil.sendDbError(res, err);
           return;
         }
 
@@ -245,6 +234,7 @@ module.exports.assignRoute = function(app){
           message: 'you have declined the event ' + event.name
         });
         logger.info('/event/declined reponsed');
+
       });
     });
   }); //end of POST /event/decline
@@ -278,7 +268,7 @@ module.exports.assignRoute = function(app){
       event.save(function(err) {
 
         if(err) { //if error occur while saving.
-          sendDbError();
+          ReqUtil.sendDbError(res, err);
           return;
         }
 
@@ -287,8 +277,9 @@ module.exports.assignRoute = function(app){
         */
         var toNotify = event.joinedList;
         User.find({
-          _id: { $in: toNotify }
-        }).select('deviceKey')
+            _id: { $in: toNotify }
+          })
+          .select('deviceKey')
           .exec(function(err, results) {
 
             if(err){ // if error occur while searching deviceKeys.
@@ -300,7 +291,8 @@ module.exports.assignRoute = function(app){
             results.forEach(function(user) {
               ANS.notify(user.deviceKey, 'An Event is edited', 'The ' + oldName + ' event has been edited.');
             });
-          });
+
+        });
 
         /*
           send back a response that the event is successfully edited.
@@ -309,6 +301,7 @@ module.exports.assignRoute = function(app){
           message: 'The event ' + event.name + ' has been edited.'
         });
         logger.info('/event/edit reponsed');
+
       });
     });
   }); //end of POST /event/edit
@@ -326,7 +319,7 @@ module.exports.assignRoute = function(app){
     },function(err, event){
 
       if(err){ // if error occur while removing.
-        sendDbError();
+        ReqUtil.sendDbError(res, err);
         return;
       }
 
@@ -349,7 +342,7 @@ module.exports.assignRoute = function(app){
           results.forEach(function(user) {
             ANS.notify(user.deviceKey, 'An Event is cancelled', 'The ' + event.name + ' event has been cancelled.');
           });
-        });
+      });
 
       /*
         send back a response that the event is removed.
@@ -358,6 +351,7 @@ module.exports.assignRoute = function(app){
         message: 'The event ' + event.name + ' has been cancel.'
       });
       logger.info('/event/remove reponsed');
+
     });
   }); //end of POST /event/remove
 
@@ -372,57 +366,63 @@ module.exports.assignRoute = function(app){
         joinedList: thisUserId ,
         date: { $gt: today() }
       },
-      function(err, results) {
-        if(err){
-          sendDbError();
-          return;
+        function(err, results) {
+          if(err){
+            ReqUtil.sendDbError(res, err);
+            return;
+          }
+          res.status(200).json({
+            result: results
+          });
+          logger.info('/event/joinedEvent reponsed');
         }
-      res.status(200).json({
-        result: results
-      });
-      logger.info('/event/joinedEvent reponsed');
-    });
+    );
   }); //end of GET /event/joinedEvent
 
 
   app.get('/event/publicEvent', function(req, res, next) {
     var thisUserId = req.user.uid;
+
     UserUtil.findOne({ _id: thisUserId }, function(err, user) {
       var beautified = UserUtil.beautify(user);
       var friends = [];
+
       beautified.friends.forEach(function(friend){
         friends.push(friend._id);
       });
       if(friends.length <= 0) res.status(200).json({
         result: []
       });
+
       findEvent({
           host: { $in: friends },
           date: { $gt: today() },
           joinedList: { $not: { $eq: thisUserId } }
-        }, function(err, results) {
-        if(err){
-          console.log(err);
-          sendDbError(res, err);
-          return;
-        }
-        res.status(200).json({
-          result: results
-        });
-        logger.info('/event/publicEvent reponsed');
-      });
+        },
+          function(err, results) {
+            if(err){
+              ReqUtil.sendDbError(res, err);
+              return;
+            }
+            res.status(200).json({
+              result: results
+            });
+            logger.info('/event/publicEvent reponsed');
+          }
+      );
     });
   }); //end of GET /event/publicEvent
 
 
   app.get('/event/myEvent', function(req, res, next) {
     var thisUserId = req.user.uid;
+
     findEvent({
       host: thisUserId,
       date: { $gt: today() }
     }, function(err, results) {
       if(err){
-        sendDbError();
+        ReqUtil.sendDbError(res, err);
         return;
       }
       res.status(200).json({
@@ -447,6 +447,7 @@ function removeUserIdFromList(list, id){
 function findEvent(query, callback){
   Event.find(query)
     .select('_id name host icon date declinedList pendingList joinedList place timestamp isPrivate')
+    .sort('-timestamp')
     .populate({
       path: 'pendingList',
       select: '_id username email avatar friendship',
@@ -508,10 +509,9 @@ function findEvent(query, callback){
       }
     })
     .exec(function(err, results) {
-      console.log(err);
       var beautifiedResult = [];
+
       results.forEach(function(event) {
-        console.log(event.name);
         var beautifiedEvent = {
           _id: event._id,
           name: event.name,
@@ -524,31 +524,26 @@ function findEvent(query, callback){
           date: event.date,
           timestamp: event.timestamp
         };
+
         beautifiedEvent.host = UserUtil.beautify(event.host);
-        console.log(beautifiedEvent.host);
+
         event.joinedList.forEach(function(user) {
           beautifiedEvent.joinedList.push(UserUtil.beautify(user));
         });
-        console.log(beautifiedEvent.joinedList);
+
         event.pendingList.forEach(function(user) {
           beautifiedEvent.pendingList.push(UserUtil.beautify(user));
         });
-        console.log(beautifiedEvent.pendingList);
+
         event.declinedList.forEach(function(user) {
           beautifiedEvent.declinedList.push(UserUtil.beautify(user));
         });
-        console.log(beautifiedEvent.declinedList);
+
         beautifiedResult.push(beautifiedEvent);
       });
+
       callback(err, beautifiedResult);
     });
-}
-
-function sendDbError(res, err){
-  logger.error(err);
-  res.status(500).json({
-    message: 'database error'
-  });
 }
 
 function DbErrorCantNotify(err){
