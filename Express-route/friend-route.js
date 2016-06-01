@@ -87,12 +87,14 @@ module.exports.assignRoute = function(app) {
                     if(err) { //database error occur
                       return sendDbError(res, err);
                     }
-
+                    console.log(raw);
                     User.findOne(
                       {
                         _id: otherUserId
                       },
                       function(err, user) {
+                        console.log(err);
+                        console.log(user);
                         UserUtil.findOne({ _id: thisUseId },
                           function(err, thisuser){
                             console.log(err);
