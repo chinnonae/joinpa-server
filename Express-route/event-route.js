@@ -59,17 +59,23 @@ module.exports.assignRoute = function(app){
               /*
                 for each user, notify that he/she is invited to an event.
               */
-              results.forEach(function(user) {
-                ANS.notify(user.deviceKey, 'New Event',
-                  JSON.stringify(
-                    {
-                      status: 1,
-                      message: 'You have been invited to ' + event.name + ' event.',
+              findOne({_id: event._id}, function(err, _event){
+                if(err) {
+                  //handle error
+                  return;
+                }
+                results.forEach(function(user) {
+                  ANS.notify(user.deviceKey, 'New Event',
+                    JSON.stringify(
+                      {
+                        status: 1,
+                        message: 'You have been invited to ' + _event.name + ' event.',
+                        event: _event
 
-
-                    }
-                  )
-                );
+                      }
+                    )
+                  );
+                });
               });
             });
 
@@ -156,7 +162,9 @@ module.exports.assignRoute = function(app){
                 ANS.notify(user.deviceKey, 'New Event',
                   JSON.stringify(
                     {
-
+                      status: 1,
+                      message: 'You have been invited to ' + event.name + ' event.',
+                      event: event
                     }
                   )
                 );
@@ -322,10 +330,11 @@ module.exports.assignRoute = function(app){
 
             // for each user, send notifications.
             results.forEach(function(user) {
-              ANS.notify(user.deviceKey, 'An Event is edited',
+              ANS.notify(user.deviceKey, 'An event is changed.',
                 JSON.stringify(
                   {
-
+                    status: 3,
+                    message: 'The ' + event.name + ' event has been changed',
                   }
                 )
               );
@@ -382,7 +391,8 @@ module.exports.assignRoute = function(app){
             ANS.notify(user.deviceKey, 'An Event is cancelled',
               JSON.stringify(
                 {
-
+                  status:3,
+                  message: 'The ' + event.name + ' event has been cancelled'
                 }
               )
             );
