@@ -3,6 +3,7 @@ var Friendship = require('../Models/Friendship');
 var logger = require('../logger');
 var UserUtil = require('../Utils/UserUtil');
 var ReqUtil = require('../Utils/RequestUtil');
+var ANS = require('../Utils/AndroidNotificationSender');
 
 module.exports.assignRoute = function(app) {
 
@@ -87,6 +88,26 @@ module.exports.assignRoute = function(app) {
                       return sendDbError(res, err);
                     }
 
+                    User.findOne(
+                      {
+                        _id: otherUserId
+                      },
+                      function(err, user) {
+                        UserUtil.findOne({ _id: thisUseId },
+                          function(err, thisuser){
+                            var beautified = UserUtil.beautify(thisuser);
+                            ANS.notify(user.deviceKey, 'Friend request',
+                              JSON.stringify(
+                                {
+                                  status: 2,
+                                  message: 'You have a friend-request from ' + beautified.username,
+                                  friend: beautified
+                                }
+                              )
+                            );
+                          });
+                      }
+                    );
                     //if not then response the client
                     res.status(200).json({
                       message: 'request is sent'
