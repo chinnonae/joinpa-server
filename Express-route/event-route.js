@@ -105,10 +105,7 @@ module.exports.assignRoute = function(app){
     var invitation = req.body;
     var invitedList = [];
 
-    console.log(invitation.invitedList);
-    console.log(typeof invitation.invitedList);
-    console.log(JSON.parse( '{' + invitation.invitedList + '}'));
-    invitation.invitedList.forEach(function(friend) {
+    JSON.parse(invitation.invitedList).forEach(function(friend) {
       invitedList.push(friend._id);
     });
 
