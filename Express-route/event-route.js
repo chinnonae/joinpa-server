@@ -452,7 +452,7 @@ function removeUserIdFromList(list, id){
 function findEvent(query, callback){
   Event.find(query)
     .select('_id name host icon date declinedList pendingList joinedList place timestamp isPrivate')
-    .sort('-timestamp')
+    .sort('-_id')
     .populate({
       path: 'pendingList',
       select: '_id username email avatar friendship',
