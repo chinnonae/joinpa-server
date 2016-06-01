@@ -140,7 +140,7 @@ module.exports.assignRoute = function(app){
             .exec(function(err, results) {
 
               if(err){ // if error while looking for deviceKey in database.
-                DbErrorCantNotify();
+                DbErrorCantNotify(err);
                 return;
               }
               results.forEach(function(user) {
