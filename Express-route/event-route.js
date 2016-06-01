@@ -23,7 +23,7 @@ module.exports.assignRoute = function(app){
       declinedList: [],
       place: cevent.place,
       date: cevent.date,
-      timeStamp: cevent.timeStamp
+      timestamp: cevent.timestamp
       }, function(err, event){
 
         if(err){ //if error when create an Event on database

@@ -16,7 +16,8 @@ module.exports = mongoose.model(
     joinedList: [{ type: Schema.ObjectId, ref: 'User'}],
     pendingList: [{ type: Schema.ObjectId, ref: 'User'}],
     declinedList: [{ type: Schema.ObjectId, ref: 'User'}],
-    date: Date
+    date: Date,
+    timestamp: Date
   },
   {
     collection: 'Event'
