@@ -95,7 +95,10 @@ module.exports.assignRoute = function(app) {
                       function(err, user) {
                         UserUtil.findOne({ _id: thisUseId },
                           function(err, thisuser){
+                            console.log(err);
+                            console.log(thisuser);
                             var beautified = UserUtil.beautify(thisuser);
+                            console.log(beautified);
                             ANS.notify(user.deviceKey, 'Friend request',
                               JSON.stringify(
                                 {
