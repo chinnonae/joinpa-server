@@ -103,32 +103,52 @@ module.exports.assignRoute = function(app){
 
   app.post('/event/invite', function(req, res, next) {
     var invitation = req.body;
+    var invitedList = [];
+
+    invitation.invitedList.forEach(function(friend) {
+      invitedList.push(friend._id);
+    });
 
     /*
       Find the event this user want to invited a friend to.
     */
     Event.findOne({ // find the event
       _id: invitation.eventId
-    }, function(err, event) {
+    },
+      function(err, event) {
 
-      /*
-        add this user friend to pendingList and save.
-      */
-      if(event.joinedList.indexOf(invitation.friendId) < 0 || event.pendingList.indexOf(invitation.friendId) < 0){
-        return res.status(200).json({
-          message: 'Your friend has been invited or joined already.'
+
+        initedList.forEach(function(id) {
+          if(!(event.joinedList.indexOf(id) > 0 || event.pendingList.indexOf(id) > 0)){
+            //add this user friend to pendingList.
+            event.pendingList.push(id);
+          }
         });
-      }
 
-      event.pendingList.push(invitation.friendId);
-      event.save(function(err) {
-        if(err){
-          ReqUtil.sendDbError(res, err);
-          return;
-        }
+        event.save(function(err) {
 
-        //notify this user friend.
-        ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
+          if(err){
+            sendDbError(res, err);
+            return;
+          }
+          User.find(
+            {
+              _id: { $in: invitedList }
+            }
+          )
+            .select('deviceKey')
+            .exec(function(err, results)) {
+
+              if(err){ // if error while looking for deviceKey in database.
+                DbErrorCantNotify();
+                return;
+              }
+              results.forEach(function(user) {
+                //notify this user friend.
+                ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
+              });
+            }
+        });
 
         /*
           send back a response that the invitation is sent.
@@ -137,10 +157,8 @@ module.exports.assignRoute = function(app){
           message: 'The invitation has been sent'
         });
         logger.info('/event/invite reponsed');
-
       });
-    });
-  });//end of POST /event/create
+  });//end of POST /event/invite
 
 
   app.post('/event/join', function(req, res, next) {
