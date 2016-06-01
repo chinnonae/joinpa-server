@@ -27,6 +27,7 @@ module.exports.notify = function(deviceKey, title, body) {
     });
     res.on('data', function(data) {
       logger.info('Successfully notified');
+      logger.debug(data);
     });
   });
 
