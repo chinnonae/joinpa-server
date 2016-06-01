@@ -118,7 +118,7 @@ module.exports.assignRoute = function(app){
       function(err, event) {
 
 
-        initedList.forEach(function(id) {
+        invitedList.forEach(function(id) {
           if(!(event.joinedList.indexOf(id) > 0 || event.pendingList.indexOf(id) > 0)){
             //add this user friend to pendingList.
             event.pendingList.push(id);
@@ -137,7 +137,7 @@ module.exports.assignRoute = function(app){
             }
           )
             .select('deviceKey')
-            .exec(function(err, results)) {
+            .exec(function(err, results) {
 
               if(err){ // if error while looking for deviceKey in database.
                 DbErrorCantNotify();
@@ -147,7 +147,7 @@ module.exports.assignRoute = function(app){
                 //notify this user friend.
                 ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
               });
-            }
+            });
         });
 
         /*
