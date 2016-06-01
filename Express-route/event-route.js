@@ -6,6 +6,7 @@ var ANS = require('../Utils/AndroidNotificationSender');
 var User = require('../Models/User');
 var ReqUtil = require('../Utils/RequestUtil');
 
+console.log('start event');
 module.exports.assignRoute = function(app){
 
   app.post('/event/create', function(req, res, next) {
@@ -384,20 +385,24 @@ module.exports.assignRoute = function(app){
     var thisUserId = req.user.uid;
 
     UserUtil.findOne({ _id: thisUserId }, function(err, user) {
+
       var beautified = UserUtil.beautify(user);
       var friends = [];
 
-      beautified.friends.forEach(function(friend){
+      beautified.friends.forEach(function(friend) {
         friends.push(friend._id);
       });
-      if(friends.length <= 0) res.status(200).json({
-        result: []
-      });
+      if(friends.length <= 0) {
+        res.status(200).json({
+          result: []
+        });
+      }
 
       findEvent({
           host: { $in: friends },
           date: { $gt: today() },
-          joinedList: { $not: { $eq: thisUserId } }
+          joinedList: { $nin: [thisUserId]}
+
         },
           function(err, results) {
             if(err){
@@ -556,3 +561,5 @@ function today() {
   var today = new Date(now.getYear(), now.getMonth(), now.getDate());
   return today;
 }
+
+console.log('end event');

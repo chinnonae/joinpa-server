@@ -111,7 +111,8 @@ module.exports = {
 function cloneAttribute(attribs, original){
   var cloned = {};
   attribs.forEach(function(attrib) {
-    if(original[attrib] !== unidentify){
+    console.log(attrib);
+    if(original[attrib] !== undefined){
       cloned[attrib] = original[attrib];
     }
   });

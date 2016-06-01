@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var logger = require('logger');
+var logger = require('./logger');
 
 var username = 'joinpa_BE';
 var password = 'softspec';
