@@ -108,6 +108,11 @@ module.exports.assignRoute = function(app){
       /*
         add this user friend to pendingList and save.
       */
+      if(event.joinedList.indexOf(invitation.friendId) > 0 || event.pendingList.indexOf(invitation.friendId) > 0){
+        return res.status(200).json({
+          message: 'Your friend has been invited or joined already.'
+        })
+      }
       event.pendingList.push(invitation.friendId);
       event.save(function(err) {
 
