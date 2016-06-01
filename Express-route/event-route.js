@@ -65,7 +65,8 @@ module.exports.assignRoute = function(app){
                     {
                       status: 1,
                       message: 'You have been invited to ' + event.name + ' event.',
-                      
+
+
                     }
                   )
                 );
@@ -112,7 +113,7 @@ module.exports.assignRoute = function(app){
   app.post('/event/invite', function(req, res, next) {
     var invitation = req.body;
     var invitedList = [];
-
+  
     JSON.parse(invitation.invitedList).forEach(function(friend) {
       invitedList.push(friend._id);
     });
@@ -120,11 +121,11 @@ module.exports.assignRoute = function(app){
     /*
       Find the event this user want to invited a friend to.
     */
-    Event.findOne({ // find the event
+    findEvent({ // find the event
       _id: invitation.eventId
     },
-      function(err, event) {
-
+      function(err, results) {
+        var event = results[0];
 
         invitedList.forEach(function(id) {
           if(!(event.joinedList.indexOf(id) > 0 || event.pendingList.indexOf(id) > 0)){
