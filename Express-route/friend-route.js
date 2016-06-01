@@ -95,7 +95,7 @@ module.exports.assignRoute = function(app) {
                       function(err, user) {
                         console.log(err);
                         console.log(user);
-                        UserUtil.findOne({ _id: thisUseId },
+                        UserUtil.findOne({ _id: thisUserId },
                           function(err, thisuser){
                             console.log(err);
                             console.log(thisuser);
