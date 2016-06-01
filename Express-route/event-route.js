@@ -1,3 +1,4 @@
+
 var Event = require('../Models/Event');
 var logger = require('../logger');
 var UserUtil = require('../Utils/UserUtil');
@@ -387,9 +388,10 @@ module.exports.assignRoute = function(app){
       findEvent({
           host: { $in: friends },
           date: { $gt: new Date() },
-          joinedList: { $nin: [thisUserId] }
+          joinedList: { $not: { $eq: thisUserId } }
         }, function(err, results) {
         if(err){
+          console.log(err);
           sendDbError(res, err);
           return;
         }
@@ -432,7 +434,7 @@ function removeUserIdFromList(list, id){
 
 function findEvent(query, callback){
   Event.find(query)
-    .select('_id name host icon date declinedList pendingList joinedList place timestamp')
+    .select('_id name host icon date declinedList pendingList joinedList place timestamp isPrivate')
     .populate({
       path: 'pendingList',
       select: '_id username email avatar'
