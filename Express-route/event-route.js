@@ -6,7 +6,7 @@ var ANS = require('../Utils/AndroidNotificationSender');
 var User = require('../Models/User');
 var ReqUtil = require('../Utils/RequestUtil');
 
-console.log('start event');
+
 module.exports.assignRoute = function(app){
 
   app.post('/event/create', function(req, res, next) {
@@ -60,7 +60,15 @@ module.exports.assignRoute = function(app){
                 for each user, notify that he/she is invited to an event.
               */
               results.forEach(function(user) {
-                ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
+                ANS.notify(user.deviceKey, 'New Event',
+                  JSON.stringify(
+                    {
+                      status: 1,
+                      message: 'You have been invited to ' + event.name + ' event.',
+                      
+                    }
+                  )
+                );
               });
             });
 
@@ -145,7 +153,13 @@ module.exports.assignRoute = function(app){
               }
               results.forEach(function(user) {
                 //notify this user friend.
-                ANS.notify(user.deviceKey, 'New Event', 'You are invited to ' + event.name + ' event.');
+                ANS.notify(user.deviceKey, 'New Event',
+                  JSON.stringify(
+                    {
+
+                    }
+                  )
+                );
               });
             });
         });
@@ -308,7 +322,13 @@ module.exports.assignRoute = function(app){
 
             // for each user, send notifications.
             results.forEach(function(user) {
-              ANS.notify(user.deviceKey, 'An Event is edited', 'The ' + oldName + ' event has been edited.');
+              ANS.notify(user.deviceKey, 'An Event is edited',
+                JSON.stringify(
+                  {
+
+                  }
+                )
+              );
             });
 
         });
@@ -359,7 +379,13 @@ module.exports.assignRoute = function(app){
 
           // for each user, send notification.
           results.forEach(function(user) {
-            ANS.notify(user.deviceKey, 'An Event is cancelled', 'The ' + event.name + ' event has been cancelled.');
+            ANS.notify(user.deviceKey, 'An Event is cancelled',
+              JSON.stringify(
+                {
+
+                }
+              )
+            );
           });
       });
 
@@ -579,5 +605,3 @@ function today() {
   var today = new Date(now.getYear(), now.getMonth(), now.getDate());
   return today;
 }
-
-console.log('end event');
