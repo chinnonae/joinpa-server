@@ -43,6 +43,7 @@ module.exports.assignRoute = function(app){
           /*
             find users' deviceKeys with IDs' in pendingList
           */
+
           User.find({
             _id: { $in: event.pendingList }
           }).select('deviceKey')
@@ -448,22 +449,98 @@ function findEvent(query, callback){
     .select('_id name host icon date declinedList pendingList joinedList place timestamp isPrivate')
     .populate({
       path: 'pendingList',
-      select: '_id username email avatar'
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: '_id username email avatar',
+          model: User
+        }
+      }
     })
     .populate({
       path: 'joinedList',
-      select: '_id username email avatar'
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: '_id username email avatar',
+          model: User
+        }
+      }
     })
     .populate({
       path: 'declinedList',
-      select: '_id username email avatar'
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: '_id username email avatar',
+          model: User
+        }
+      }
     })
     .populate({
       path: 'host',
-      select: '_id username email avatar'
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: 'username email avatar',
+          model: User
+        }
+      }
     })
     .exec(function(err, results) {
-      callback(err, results);
+      console.log(err);
+      var beautifiedResult = [];
+      results.forEach(function(event) {
+        console.log(event.name);
+        var beautifiedEvent = {
+          _id: event._id,
+          name: event.name,
+          isPrivate: event.isPrivate,
+          icon: event.icon,
+          place: event.place,
+          joinedList: [],
+          pendingList: [],
+          declinedList: [],
+          date: event.date,
+          timestamp: event.timestamp
+        };
+        beautifiedEvent.host = UserUtil.beautify(event.host);
+        console.log(beautifiedEvent.host);
+        event.joinedList.forEach(function(user) {
+          beautifiedEvent.joinedList.push(UserUtil.beautify(user));
+        });
+        console.log(beautifiedEvent.joinedList);
+        event.pendingList.forEach(function(user) {
+          beautifiedEvent.pendingList.push(UserUtil.beautify(user));
+        });
+        console.log(beautifiedEvent.pendingList);
+        event.declinedList.forEach(function(user) {
+          beautifiedEvent.declinedList.push(UserUtil.beautify(user));
+        });
+        console.log(beautifiedEvent.declinedList);
+        beautifiedResult.push(beautifiedEvent);
+      });
+      callback(err, beautifiedResult);
     });
 }
 

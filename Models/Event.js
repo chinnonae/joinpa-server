@@ -6,7 +6,7 @@ module.exports = mongoose.model(
   new Schema({
     name: String,
     host: {type: Schema.ObjectId, ref: 'User'},
-    private: Boolean,
+    isPrivate: Boolean,
     icon: Number,
     place: {
       name: String,
