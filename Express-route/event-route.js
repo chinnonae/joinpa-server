@@ -81,7 +81,7 @@ module.exports.assignRoute = function(app){
     */
     findEvent({
       pendingList: thisUserId,
-      date: { $gt: new Date()}
+      date: { $gt: today()}
     }, function(err, results) {
         if(err){
           sendDbError();
@@ -357,7 +357,7 @@ module.exports.assignRoute = function(app){
     */
     findEvent({
         joinedList: thisUserId ,
-        date: { $gt: new Date() }
+        date: { $gt: today() }
       },
       function(err, results) {
         if(err){
@@ -384,7 +384,7 @@ module.exports.assignRoute = function(app){
       });
       findEvent({
           host: { $in: friends },
-          date: { $gt: new Date() },
+          date: { $gt: today() },
           joinedList: { $not: { $eq: thisUserId } }
         }, function(err, results) {
         if(err){
@@ -404,7 +404,7 @@ module.exports.assignRoute = function(app){
     var thisUserId = req.user.uid;
     findEvent({
       host: thisUserId,
-      date: { $gt: new Date() }
+      date: { $gt: today() }
     }, function(err, results) {
       if(err){
         sendDbError();
@@ -463,4 +463,10 @@ function sendDbError(res, err){
 function DbErrorCantNotify(err){
   logger.error('database error, notifications cannot be fired');
   logger.error(err);
+}
+
+function today() {
+  var now = new Date();
+  var today = new Date(now.getYear(), now.getMonth(), now.getDate());
+  return today;
 }
