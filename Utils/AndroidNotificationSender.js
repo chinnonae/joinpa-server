@@ -14,6 +14,9 @@ var options = {
 };
 
 module.exports.notify = function(deviceKey, title, body) {
+  if(deviceKey === "") {
+    return;
+  }
   var req = https.request(options, function(res) {
     res.on('err', function(err) {
       process.stdout.write(err);

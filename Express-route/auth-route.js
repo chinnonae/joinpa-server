@@ -150,9 +150,28 @@ module.exports.assignRoute = function(app) {
         }
     });
 
-    app.get('/test', function(req, res, next) {
-        res.json('success');
-    });
+
+    app.get('/logout',function(req, res, next) {
+      var thisUserId = req.user.uid;
+
+      UserUtil.findOne({ _id: thisUserId }, function(err, user) {
+        user.deviceKey = "";
+
+        user.save(function(err) {
+          if(err) {
+            sendDbError();
+            return;
+          }
+          res.status(200).json({
+            message: 'You have been signed out.'
+          });
+
+        });
+      });
+
+    }); //end of /logout
+
+
 };
 
 function genToken(id, callback) {

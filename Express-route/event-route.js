@@ -67,6 +67,7 @@ module.exports.assignRoute = function(app){
           res.status(200).json({ //
               message: 'The ' + event.name + ' event has been created'
           });
+          logger.info('/event/create reponsed');
         });
       }
     );
@@ -90,6 +91,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           result: results
         });
+        logger.info('/event/invitedEvent reponsed');
       });
 
   }); //end of GET /event/events
@@ -136,6 +138,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           message: 'The invitation has been sent'
         });
+        logger.info('/event/invite reponsed');
       });
     });//end of POST /event/create
 
@@ -185,6 +188,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           message: 'you have joined the event ' + event.name
         });
+        logger.info('/event/join reponsed');
       });
 
 
@@ -239,6 +243,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           message: 'you have declined the event ' + event.name
         });
+        logger.info('/event/declined reponsed');
       });
     });
   }); //end of POST /event/decline
@@ -302,6 +307,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           message: 'The event ' + event.name + ' has been edited.'
         });
+        logger.info('/event/edit reponsed');
       });
     });
   }); //end of POST /event/edit
@@ -350,6 +356,7 @@ module.exports.assignRoute = function(app){
       res.status(200).json({
         message: 'The event ' + event.name + ' has been cancel.'
       });
+      logger.info('/event/remove reponsed');
     });
   }); //end of POST /event/remove
 
@@ -372,6 +379,7 @@ module.exports.assignRoute = function(app){
       res.status(200).json({
         result: results
       });
+      logger.info('/event/joinedEvent reponsed');
     });
   }); //end of GET /event/joinedEvent
 
@@ -400,6 +408,7 @@ module.exports.assignRoute = function(app){
         res.status(200).json({
           result: results
         });
+        logger.info('/event/publicEvent reponsed');
       });
     });
   }); //end of GET /event/publicEvent
