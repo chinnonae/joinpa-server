@@ -113,7 +113,7 @@ module.exports.assignRoute = function(app){
   app.post('/event/invite', function(req, res, next) {
     var invitation = req.body;
     var invitedList = [];
-  
+
     JSON.parse(invitation.invitedList).forEach(function(friend) {
       invitedList.push(friend._id);
     });
@@ -121,11 +121,10 @@ module.exports.assignRoute = function(app){
     /*
       Find the event this user want to invited a friend to.
     */
-    findEvent({ // find the event
+    findOneEvent({ // find the event
       _id: invitation.eventId
     },
-      function(err, results) {
-        var event = results[0];
+      function(err, event) {
 
         invitedList.forEach(function(id) {
           if(!(event.joinedList.indexOf(id) > 0 || event.pendingList.indexOf(id) > 0)){
@@ -593,6 +592,75 @@ function findEvent(query, callback){
       });
 
       callback(err, beautifiedResult);
+    });
+}
+
+function findOneEvent(query, callback) {
+  Event.findOne(query)
+    .select('_id name host icon date declinedList pendingList joinedList place timestamp isPrivate')
+    .sort('-_id')
+    .populate({
+      path: 'pendingList',
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: '_id username email avatar',
+          model: User
+        }
+      }
+    })
+    .populate({
+      path: 'joinedList',
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: '_id username email avatar',
+          model: User
+        }
+      }
+    })
+    .populate({
+      path: 'declinedList',
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: '_id username email avatar',
+          model: User
+        }
+      }
+    })
+    .populate({
+      path: 'host',
+      select: '_id username email avatar friendship',
+
+      populate: {
+        path: 'friendship',
+        select: 'relation status',
+
+        populate: {
+          path: 'relation',
+          select: 'username email avatar',
+          model: User
+        }
+      }
+    })
+    .exec(function(err, event) {
+      callback(err, event);
     });
 }
 
