@@ -386,6 +386,7 @@ module.exports.assignRoute = function(app){
             return;
           }
 
+          console.log('debug');
           // for each user, send notification.
           results.forEach(function(user) {
             ANS.notify(user.deviceKey, 'An Event is cancelled',
