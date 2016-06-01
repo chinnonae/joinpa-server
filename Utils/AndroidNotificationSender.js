@@ -15,7 +15,6 @@ var options = {
 };
 
 module.exports.notify = function(deviceKey, title, body) {
-
   if(deviceKey === "") {
     return;
   }
@@ -30,6 +29,7 @@ module.exports.notify = function(deviceKey, title, body) {
       process.stdout.write(data);
     });
   });
+
 
   var postBody = JSON.stringify({
     notification: {

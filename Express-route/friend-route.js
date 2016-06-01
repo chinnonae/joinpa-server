@@ -87,20 +87,14 @@ module.exports.assignRoute = function(app) {
                     if(err) { //database error occur
                       return sendDbError(res, err);
                     }
-                    console.log(raw);
                     User.findOne(
                       {
                         _id: otherUserId
                       },
                       function(err, user) {
-                        console.log(err);
-                        console.log(user);
                         UserUtil.findOne({ _id: thisUserId },
                           function(err, thisuser){
-                            console.log(err);
-                            console.log(thisuser);
                             var beautified = UserUtil.beautify(thisuser);
-                            console.log(beautified);
                             ANS.notify(user.deviceKey, 'Friend request',
                               JSON.stringify(
                                 {
