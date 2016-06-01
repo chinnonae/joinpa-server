@@ -134,7 +134,16 @@ module.exports.assignRoute = function(app) {
 
                 UserUtil.findOne({ _id: decode.uid }, function(err, user) {
                   var beautified = UserUtil.beautify(user);
-                  return res.status(200).json(beautified);
+                  user.deviceKey = deviceKey;
+
+                  user.save(function(err) {
+                      if(err) {
+                        sendDbError();
+                        return;
+                      }
+                      return res.status(200).json(beautified);
+                  });
+
                 });
 
             });
