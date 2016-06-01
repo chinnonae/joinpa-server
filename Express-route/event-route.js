@@ -356,10 +356,7 @@ module.exports.assignRoute = function(app){
       Find an Event that this user joined or hosted.
     */
     findEvent({
-        $or: [
-          { joinedList: thisUserId },
-          { host: thisUserId }
-        ],
+        joinedList: thisUserId ,
         date: { $gt: new Date() }
       },
       function(err, results) {
