@@ -32,7 +32,7 @@ module.exports.notify = function(deviceKey, title, body) {
 
 
   var postBody = JSON.stringify({
-    notification: {
+    data: {
       title: title,
       body: body
     },
